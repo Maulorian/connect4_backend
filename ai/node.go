@@ -21,8 +21,6 @@ func NewNode(state game.State, parent *Node) *Node {
 	return &Node{state: state, parent: parent}
 }
 
-
-
 func (node Node) isLeaf() bool {
 	//fmt.Println("isLeaf():", node)
 
@@ -66,11 +64,11 @@ func (node *Node) GenerateChildren() (*Node, error) {
 func (node Node) ChildWithBestWinRate() *Node {
 
 	var childWithBestWinRate *Node
-	//var maxValue = float32(math.SmallestNonzeroFloat32)
-	var maxValue = math.MinInt8
+	var maxValue = float32(math.SmallestNonzeroFloat32)
+	//var maxValue = math.MinInt8
 	// debugger
 	for _, child := range node.children {
-		var winRate = child.simulations
+		var winRate = child.winRate
 		if winRate > maxValue {
 			maxValue = winRate
 			childWithBestWinRate = child
@@ -100,7 +98,7 @@ func (node Node) ChildWithBestUTC() *Node {
 func (node Node) GetUCT() float64 {
 	//fmt.Println("GetUCT")
 
-	if node.parent == nil{
+	if node.parent == nil {
 		fmt.Println("parent is nil")
 	}
 	if node.simulations == 0 {
@@ -108,13 +106,13 @@ func (node Node) GetUCT() float64 {
 	}
 	var term1 = node.wins / float32(node.simulations)
 	var log = math.Log(float64(node.parent.simulations))
-	var division = log/float64(node.simulations)
+	var division = log / float64(node.simulations)
 	var power = math.Pow(division, 0.5)
 
 	var term2 = power
 
 	// return term1 + (EXPLORATION_PARAMETER * term2)
-	return float64(term1) + ExplorationParameter * term2
+	return float64(term1) + ExplorationParameter*term2
 }
 
 func (node Node) GetRandomChild() *Node {
@@ -125,5 +123,3 @@ func (node Node) GetRandomChild() *Node {
 	var randomIndex = rand.Intn(len(node.children) - 1)
 	return node.children[randomIndex]
 }
-
-

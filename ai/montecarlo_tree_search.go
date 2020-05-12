@@ -8,7 +8,7 @@ import (
 )
 
 const CalculationTime = 3 //seconds
-const ExplorationParameter = 1.414213562373095
+const ExplorationParameter = 10
 
 func GetBestMove(node *Node) game.Coordinate {
 	rand.Seed(time.Now().UnixNano())
@@ -36,7 +36,8 @@ func GetBestMove(node *Node) game.Coordinate {
 
 	fmt.Println("total simulation :", node.simulations)
 	for _, child := range node.children {
-		fmt.Println(child.GetUCT(), child.winRate, child.state.Move, child.wins, child.simulations)
+		fmt.Println(child.GetUCT(), "winRate:", child.winRate, child.state.Move, "wins:", child.wins, "simulations:", child.simulations)
+		//fmt.Println(child)
 	}
 
 	return node.ChildWithBestWinRate().state.Move
@@ -51,7 +52,9 @@ func Backpropagate(node *Node, o int) {
 		node.wins++
 	}
 	node.winRate = node.wins / float32(node.simulations)
-	if node.isRoot(){return}
+	if node.isRoot() {
+		return
+	}
 	Backpropagate(node.parent, o)
 
 }
@@ -61,13 +64,13 @@ func Traverse(node *Node) *Node {
 	//fmt.Println(root)
 	for !root.isLeaf() {
 		var bestChoice = root.ChildWithBestUTC()
-		//if bestChoice == nil{
-		//	break
-		//}
-		root = bestChoice
-		if len(root.children) == 0 {
+		if bestChoice == nil {
 			break
 		}
+		root = bestChoice
+		//if len(root.children) == 0 {
+		//	break
+		//}
 	}
 
 	child, err := root.GenerateChildren()

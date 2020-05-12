@@ -15,6 +15,22 @@ func TestTraverse(t *testing.T) {
 func TestGetBestMove(t *testing.T) {
 
 	var s = game.NewState()
+	s.PlayMove(game.Coordinate{
+		Col: 3,
+		Row: 5,
+	})
+	s.PlayMove(game.Coordinate{
+		Col: 0,
+		Row: 5,
+	})
+	s.PlayMove(game.Coordinate{
+		Col: 4,
+		Row: 5,
+	})
+	s.PlayMove(game.Coordinate{
+		Col: 0,
+		Row: 4,
+	})
 	fmt.Println(s)
 
 	var node = NewNode(*s, nil)

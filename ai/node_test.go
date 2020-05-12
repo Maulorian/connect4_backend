@@ -59,9 +59,9 @@ func TestNode_GetUCT(t *testing.T) {
 		NbMoves:        0,
 	}
 	var parent = NewNode(state, nil)
-	parent.simulations = 1200
+	parent.simulations = 672313
 	var node = NewNode(state, parent)
-	node.wins = 120
-	node.simulations = 244
+	node.wins = 187591.5
+	node.simulations = 279740
 	fmt.Println(node.GetUCT())
 }

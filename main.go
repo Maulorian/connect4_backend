@@ -5,6 +5,7 @@ import (
 	"connect4_backend/game"
 	"encoding/json"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 )
@@ -25,7 +26,7 @@ func getMove(c *gin.Context) {
 		fmt.Println(err)
 	}
 
-	fmt.Println(s)
+	spew.Dump(s)
 
 	var node = ai.NewNode(s, nil)
 
@@ -58,7 +59,7 @@ func main() {
 	route := gin.Default()
 	route.Use(CORSMiddleware)
 	route.POST("/getmove", getMove)
-	_ = route.Run()
+	_ = route.Run("localhost:5001")
 
 	//MONGO CODE
 	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
