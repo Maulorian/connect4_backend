@@ -32,25 +32,15 @@ func getMove(c *gin.Context) {
 	move := ai.GetBestMove(node)
 	fmt.Println(move)
 	fmt.Println()
-	//c.Header("Access-Control-Allow-Origin","http://localhost")
+	c.Header("Access-Control-Allow-Origin", "https://sleepy-tundra-33813.herokuapp.com/")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
 }
 func main() {
-
-	//r := gin.Default()
-	//r.GET("/getmove", func(s *gin.Context) {
-	//	s.JSON(200, gin.H{
-	//		"message": "pong",
-	//	})
-	//})
-	//r.Run()
 	route := gin.Default()
 	route.POST("/getmove", getMove)
 	_ = route.Run()
-	//http.HandleFunc("/", hello)
-	//http.ListenAndServe(":8080", nil)
 
 	//MONGO CODE
 	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
