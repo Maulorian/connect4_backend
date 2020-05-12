@@ -57,7 +57,7 @@ func main() {
 	route := gin.Default()
 	route.Use(CORSMiddleware)
 	route.POST("/getmove", getMove)
-	_ = route.Run("localhost:5001")
+	_ = route.Run()
 
 	//MONGO CODE
 	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
