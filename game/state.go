@@ -2,9 +2,7 @@ package game
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
-	"runtime"
 )
 
 const Rows = 6
@@ -12,17 +10,16 @@ const Cols = 7
 
 type State struct {
 	Grid           [Cols][Rows]int `json:"grid"`
-	Outcome        int             `json:"int,string"`
-	CurrentPlayer  int             `json:"currentplayer,string"`
-	PreviousPlayer int             `json:"previousplayer,string"`
+	Outcome        int             `json:"int"`
+	CurrentPlayer  int             `json:"currentplayer"`
+	PreviousPlayer int             `json:"previousplayer"`
 	Move           Coordinate      `json:"move"`
-	NbMoves        int             `json:"nbmoves,string"`
+	NbMoves        int             `json:"nbmoves"`
 }
 
 func NewState() *State {
 	return &State{CurrentPlayer: Player1}
 }
-
 
 //func (state *State) UnmarshalJSON(data []byte) error {
 //	var results map[string]interface{}
@@ -142,15 +139,16 @@ func (state *State) GetRandomFreeRow(freeRows [7]int) (Coordinate, error) {
 	return Coordinate{}, errors.New("no free row available")
 }
 
-func PrintMemUsage() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-	fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
-	fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
-	fmt.Printf("\tNumGC = %v\n", m.NumGC)
-}
-func bToMb(b uint64) uint64 {
-	return b / 1024 / 1024
-}
+//func PrintMemUsage() {
+//	var m runtime.MemStats
+//	runtime.ReadMemStats(&m)
+//	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+//	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
+//	fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
+//	fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
+//	fmt.Printf("\tNumGC = %v\n", m.NumGC)
+//}
+
+//func bToMb(b uint64) uint64 {
+//	return b / 1024 / 1024
+//}

@@ -32,10 +32,10 @@ func getMove(c *gin.Context) {
 	move := ai.GetBestMove(node)
 	fmt.Println(move)
 	fmt.Println()
-	c.Header("Access-Control-Allow-Origin", "*")
-	//c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com/")
-	c.Header("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-	c.Header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+	//c.Header("Access-Control-Allow-Origin", "*")
+	////c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com/")
+	//c.Header("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	//c.Header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
@@ -43,7 +43,7 @@ func getMove(c *gin.Context) {
 func main() {
 	route := gin.Default()
 	route.POST("/getmove", getMove)
-	route.OPTIONS("/getmove", getMove)
+	route.OPTIONS("/sendcors", sendCors)
 	_ = route.Run()
 
 	//MONGO CODE
@@ -64,4 +64,12 @@ func main() {
 	//if err := cur.Err(); err != nil {
 	//	log.Fatal(err)
 	//}
+}
+
+func sendCors(context *gin.Context) {
+	context.Header("Access-Control-Allow-Origin", "*")
+	//c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com/")
+	context.Header("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	context.Header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+	context.JSON(200, gin.H{})
 }

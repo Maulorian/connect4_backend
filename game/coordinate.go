@@ -1,8 +1,8 @@
 package game
 
 type Coordinate struct {
-	Col int `json:"col,string"`
-	Row int `json:"row,string"`
+	Col int `json:"col"`
+	Row int `json:"row"`
 }
 
 func (coordinate Coordinate) IsInBound(move Coordinate) bool {
