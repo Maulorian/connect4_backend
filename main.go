@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
-	"net/http"
 )
 
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome home!")
-}
-func getMove(c *gin.Context)  {
+//func hello(w http.ResponseWriter, r *http.Request) {
+//	fmt.Fprintf(w, "Welcome home!")
+//}
+func getMove(c *gin.Context) {
 	fmt.Println("getMove()")
 
 	body, err := ioutil.ReadAll(c.Request.Body)
@@ -33,7 +32,7 @@ func getMove(c *gin.Context)  {
 	move := ai.GetBestMove(node)
 	fmt.Println(move)
 	fmt.Println()
-	c.Header("Access-Control-Allow-Origin","http://localhost")
+	//c.Header("Access-Control-Allow-Origin","http://localhost")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
@@ -49,7 +48,7 @@ func main() {
 	//r.Run()
 	route := gin.Default()
 	route.POST("/getmove", getMove)
-	route.Run()
+	_ = route.Run()
 	//http.HandleFunc("/", hello)
 	//http.ListenAndServe(":8080", nil)
 
