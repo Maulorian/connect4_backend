@@ -32,7 +32,7 @@ func getMove(c *gin.Context) {
 	move := ai.GetBestMove(node)
 	fmt.Println(move)
 	fmt.Println()
-	c.Header("Access-Control-Allow-Origin", "https://sleepy-tundra-33813.herokuapp.com/")
+	c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com//")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
