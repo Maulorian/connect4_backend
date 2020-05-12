@@ -21,11 +21,3 @@ const (
 //	}
 //	return errors.New("invalid outcome type")
 //}
-func GetPlayer(outcome int) int {
-	switch outcome {
-	case Player1Won:
-		return Player1
-	default:
-		return Player2
-	}
-}

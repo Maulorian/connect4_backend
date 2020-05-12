@@ -65,3 +65,23 @@ func TestNode_GetUCT(t *testing.T) {
 	node.simulations = 279740
 	fmt.Println(node.GetUCT())
 }
+func TestCopy(t *testing.T) {
+	var state = game.NewState()
+	var node = NewNode(*state, nil)
+	var deepCopy = node.state
+	deepCopy.PlayMove(game.Coordinate{
+		Col: 0,
+		Row: 5,
+	})
+	state.PlayMove(game.Coordinate{
+		Col: 1,
+		Row: 5,
+	})
+	node.state.PlayMove(game.Coordinate{
+		Col: 2,
+		Row: 5,
+	})
+	fmt.Println(deepCopy)
+	fmt.Println(state)
+	fmt.Println(node.state)
+}

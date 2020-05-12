@@ -33,10 +33,10 @@ func GetBestMove(node *Node) game.Coordinate {
 		//fmt.Println(spent)
 	}
 	fmt.Println(dic)
-
+	fmt.Println(node)
 	fmt.Println("total simulation :", node.simulations)
 	for _, child := range node.children {
-		fmt.Println(child.GetUCT(), "winRate:", child.winRate, child.state.Move, "wins:", child.wins, "simulations:", child.simulations)
+		fmt.Println("wins:", child.wins, "simulations:", child.simulations, "winRate:", child.winRate, "utc:", child.GetUCT(), "move:", child.state.Move, "done by:", child.state.PreviousPlayer)
 		//fmt.Println(child)
 	}
 
@@ -48,7 +48,7 @@ func Backpropagate(node *Node, o int) {
 
 	if o == game.Draw {
 		node.wins += 0.5
-	} else if game.GetPlayer(o) == node.state.PreviousPlayer {
+	} else if o == node.state.PreviousPlayer {
 		node.wins++
 	}
 	node.winRate = node.wins / float32(node.simulations)

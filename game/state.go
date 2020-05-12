@@ -55,20 +55,19 @@ func (state *State) PlayMove(move Coordinate) {
 	state.setCellState(move, state.CurrentPlayer)
 	state.Move = move
 	state.NbMoves += 1
+
 	if state.NbMoves == Cols*Rows {
 		state.Outcome = Draw
-		return
 	}
 	if state.HasConnectedFour(move) {
-		state.Outcome = int(state.CurrentPlayer)
-		return
+		state.Outcome = state.CurrentPlayer
 	}
 
 	state.changeTurn()
 
 }
-func (state *State) setCellState(coordinate Coordinate, int int) {
-	state.Grid[coordinate.Col][coordinate.Row] = int
+func (state *State) setCellState(coordinate Coordinate, player int) {
+	state.Grid[coordinate.Col][coordinate.Row] = player
 }
 func (state State) HasConnectedFour(move Coordinate) bool {
 	for direction := Up; direction <= DownRight; direction++ {

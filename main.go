@@ -5,7 +5,6 @@ import (
 	"connect4_backend/game"
 	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 )
@@ -26,8 +25,7 @@ func getMove(c *gin.Context) {
 		fmt.Println(err)
 	}
 
-	spew.Dump(s)
-
+	fmt.Println(s)
 	var node = ai.NewNode(s, nil)
 
 	move := ai.GetBestMove(node)

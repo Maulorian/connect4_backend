@@ -115,7 +115,7 @@ func (node Node) GetUCT() float64 {
 	return float64(term1) + ExplorationParameter*term2
 }
 
-func (node Node) GetRandomChild() *Node {
+func (node *Node) GetRandomChild() *Node {
 
 	if len(node.children) == 1 {
 		return node.children[0]

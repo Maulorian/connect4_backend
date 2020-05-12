@@ -29,34 +29,47 @@ func TestState_GetMoves(t *testing.T) {
 func TestState_HasConnectedFour(t *testing.T) {
 	var s = NewState()
 	s.PlayMove(Coordinate{
-		Col: 0,
-		Row: 0,
-	})
-	s.PlayMove(Coordinate{
-		Col: 0,
-		Row: 1,
-	})
-	s.PlayMove(Coordinate{
-		Col: 1,
-		Row: 0,
-	})
-	s.PlayMove(Coordinate{
-		Col: 1,
-		Row: 1,
-	})
-	s.PlayMove(Coordinate{
-		Col: 2,
-		Row: 0,
-	})
-	s.PlayMove(Coordinate{
-		Col: 2,
-		Row: 1,
-	})
-	s.PlayMove(Coordinate{
 		Col: 3,
-		Row: 0,
+		Row: 5,
 	})
 	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 5,
+	})
+	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 5,
+	})
+	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 4,
+	})
+	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 5,
+	})
+	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 3,
+	})
+	fmt.Println(s)
+
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 5,
+	})
+	fmt.Println(s)
+	fmt.Println(s.Outcome)
 	if s.Outcome != Player1Won {
 		t.Errorf("not good")
 	}
