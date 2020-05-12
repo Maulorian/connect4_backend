@@ -35,6 +35,7 @@ func getMove(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	//c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com/")
 	c.Header("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
