@@ -43,6 +43,7 @@ func getMove(c *gin.Context) {
 func main() {
 	route := gin.Default()
 	route.POST("/getmove", getMove)
+	route.OPTIONS("/getmove", getMove)
 	_ = route.Run()
 
 	//MONGO CODE
