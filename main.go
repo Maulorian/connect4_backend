@@ -3,10 +3,14 @@ package main
 import (
 	"connect4_backend/ai"
 	"connect4_backend/game"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
+	"time"
 )
 
 //func hello(w http.ResponseWriter, r *http.Request) {
@@ -57,24 +61,29 @@ func main() {
 	route := gin.Default()
 	route.Use(CORSMiddleware)
 	route.POST("/getmove", getMove)
+	route.POST("/savegame", saveGame)
 	_ = route.Run()
+}
 
-	//MONGO CODE
-	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-	//ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	//err = client.Connect(ctx)
-	//facebook_ads := client.Database("FacebookAds").Collection("facebook_ads")
-	//cur, err := facebook_ads.Find(ctx, bson.D{{"ad_id", 254742718983521}})
-	//if err != nil { log.Fatal(err) }
-	//defer cur.Close(ctx)
-	//for cur.Next(ctx) {
-	//	var result bson.M
-	//	err := cur.Decode(&result)
-	//	if err != nil { log.Fatal(err) }
-	//	// do something with result....
-	//	fmt.Print(result["app_store_ids"])
-	//}
-	//if err := cur.Err(); err != nil {
-	//	log.Fatal(err)
-	//}
+func saveGame(c *gin.Context) {
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var g Game
+	err = json.Unmarshal(body, &g)
+	if err != nil {
+		fmt.Println(err)
+	}
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://adp:bCi1M4NPkFgEfRzX@yeda-lan6r.gcp.mongodb.net"))
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	games := client.Database("connect4").Collection("games")
+	id, _ := games.InsertOne(ctx, g)
+	fmt.Println("added game:", id)
+}
+
+type Game struct {
+	Moves  []game.Coordinate `bson:"moves" json:"moves"`
+	Winner int               `bson:"winner" json:"winner"`
 }
