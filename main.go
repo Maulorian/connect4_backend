@@ -34,11 +34,6 @@ func getMove(c *gin.Context) {
 
 	move := ai.GetBestMove(node)
 	fmt.Println(move)
-	fmt.Println()
-	//c.Header("Access-Control-Allow-Origin", "*")
-	////c.Header("Access-Control-Allow-Origin", "https://secure-island-74494.herokuapp.com/")
-	//c.Header("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-	//c.Header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 	c.JSON(200, gin.H{
 		"move": move,
 	})
@@ -79,7 +74,11 @@ func saveGame(c *gin.Context) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	games := client.Database("connect4").Collection("games")
-	id, _ := games.InsertOne(ctx, g)
+	var toInsert = make(map[string]interface{})
+	toInsert["nb_moves"] = len(g.Moves)
+	toInsert["played_at"] = time.Now()
+	toInsert["ip"] = c.ClientIP()
+	id, _ := games.InsertOne(ctx, toInsert)
 	fmt.Println("added game:", id)
 }
 
