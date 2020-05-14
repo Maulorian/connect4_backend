@@ -78,11 +78,13 @@ func saveGame(c *gin.Context) {
 	toInsert["nb_moves"] = len(g.Moves)
 	toInsert["played_at"] = time.Now()
 	toInsert["ip"] = c.ClientIP()
+	toInsert["moves"] = g.Moves
+	toInsert["outcome"] = g.Outcome
 	id, _ := games.InsertOne(ctx, toInsert)
 	fmt.Println("added game:", id)
 }
 
 type Game struct {
-	Moves  []game.Coordinate `bson:"moves" json:"moves"`
-	Winner int               `bson:"winner" json:"winner"`
+	Moves   []game.Coordinate `bson:"moves" json:"moves"`
+	Outcome int               `bson:"outcome" json:"outcome"`
 }
