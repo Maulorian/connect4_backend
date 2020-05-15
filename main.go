@@ -76,7 +76,6 @@ func saveGame(c *gin.Context) {
 	games := client.Database("connect4").Collection("games")
 	var toInsert = make(map[string]interface{})
 	toInsert["nb_moves"] = len(g.Moves)
-	toInsert["played_at"] = time.Now()
 	toInsert["ip"] = c.ClientIP()
 	toInsert["moves"] = g.Moves
 	toInsert["outcome"] = g.Outcome
