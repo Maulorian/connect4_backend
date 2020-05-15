@@ -80,9 +80,9 @@ func saveGame(c *gin.Context) {
 	toInsert["ip"] = c.ClientIP()
 	toInsert["moves"] = g.Moves
 	toInsert["outcome"] = g.Outcome
-	toInsert["started_at"] = time.Unix(int64(g.StartedAt), 0)
-	toInsert["ended_at"] = time.Unix(int64(g.EndedAt), 0)
-	toInsert["duration"] = g.Duration / 1000
+	toInsert["started_at"] = time.Unix(g.StartedAt, 0)
+	toInsert["ended_at"] = time.Unix(g.EndedAt, 0)
+	toInsert["duration"] = g.Duration
 	id, _ := games.InsertOne(ctx, toInsert)
 	fmt.Println("added game:", id)
 }
@@ -90,7 +90,7 @@ func saveGame(c *gin.Context) {
 type Game struct {
 	Moves     []game.Coordinate `bson:"moves" json:"moves"`
 	Outcome   int               `bson:"outcome" json:"outcome"`
-	StartedAt int               `bson:"started_at" json:"started_at"`
-	EndedAt   int               `bson:"ended_at" json:"ended_at"`
+	StartedAt int64             `bson:"started_at" json:"started_at"`
+	EndedAt   int64             `bson:"ended_at" json:"ended_at"`
 	Duration  int               `bson:"duration" json:"duration"`
 }
