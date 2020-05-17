@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"runtime"
 	"sync"
 	"time"
 )
@@ -28,22 +29,29 @@ func getMove(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	waitGroup := sync.WaitGroup{}
+	//waitGroup := sync.WaitGroup{}
 
 	var node = ai.NewNode(s, nil)
-	go Process(node, &waitGroup)
+	//go Process(node, &waitGroup)
+	go func() {
+		ai.Analyse(node)
+		nodes := node.FlattenChildren()
+		ai.UpdateNodes(nodes)
+		fmt.Println("UpdateNodes() done")
+
+	}()
 	var dbNode = db.GetNode(node.State.GetID())
 	bestChild := dbNode.ChildWithBestWinRate()
 
 	var move = bestChild.Move
 	fmt.Println(bestChild)
 	fmt.Println(move)
-	fmt.Println(move)
 
 	c.JSON(200, gin.H{
 		"move": move,
 	})
-	waitGroup.Wait()
+	//waitGroup.Wait()
+	fmt.Println("getMove() done")
 
 }
 func Process(node *ai.Node, group *sync.WaitGroup) {
@@ -69,6 +77,9 @@ func CORSMiddleware(c *gin.Context) {
 	c.Next()
 }
 func main() {
+	fmt.Println(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	route := gin.Default()
 	route.Use(CORSMiddleware)
 	route.POST("/getmove", getMove)
