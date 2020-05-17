@@ -27,7 +27,6 @@ func Analyse(node *Node) {
 		lastLoopCallTime = time.Now()
 		//break
 	}
-	fmt.Println(node)
 	fmt.Println("total simulation :", node.Simulations)
 	for _, child := range node.Children {
 		fmt.Println("wins:", child.Wins, "simulations:", child.Simulations, "winRate:", child.WinRate(), "utc:", child.GetUCT(), "move:", child.State.Move, "done by:", child.State.PreviousPlayer)

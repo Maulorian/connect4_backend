@@ -116,6 +116,32 @@ func (node Node) GetUCT() float64 {
 	// return term1 + (EXPLORATION_PARAMETER * term2)
 	return float64(term1) + ExplorationParameter*term2
 }
+func (node *Node) UpdateChildrenFromDatabase() {
+	fmt.Println("UpdateChildrenFromDatabase()")
+	for _, child := range node.Children {
+		dbChild := db.GetNode(child.State.GetID())
+		child.Simulations = dbChild.Simulations
+		child.Wins = dbChild.Wins
+	}
+}
+func (node Node) ChildWithBestWinRate() Node {
+	fmt.Println("ChildWithBestWinRate()")
+	var childWithBestWinRate Node
+	var maxValue = float32(math.SmallestNonzeroFloat32)
+
+	for _, child := range node.Children {
+		if child == nil {
+			continue
+		}
+		var winRate = child.WinRate()
+		if winRate > maxValue {
+			maxValue = winRate
+			childWithBestWinRate = *child
+		}
+	}
+
+	return childWithBestWinRate
+}
 
 func (node *Node) GetRandomChild() *Node {
 
@@ -133,12 +159,14 @@ func UpdateNodes(nodes []Node) {
 		var dbNode = node.ConvertToDatabase()
 		//fmt.Println("dbNode: ", dbNode)
 		upsert := mongo.NewUpdateOneModel()
+		update := bson.M{
+			"$inc":      bson.D{{"simulations", dbNode.Simulations}, {"wins", dbNode.Wins}},
+			"$set":      bson.D{{"move", dbNode.Move}},
+			"$addToSet": bson.D{{"children", bson.D{{"$each", dbNode.Children}}}},
+		}
+
 		upsert.SetFilter(bson.M{"state_id": dbNode.StateID})
-		upsert.SetUpdate(bson.M{
-			"$inc": bson.D{{"simulations", dbNode.Simulations}, {"wins", dbNode.Wins}},
-			"$set": bson.D{{"move", dbNode.Move}, {"children", dbNode.Children}},
-		})
-		// Set Upsert flag option to turn the update operation to upsert
+		upsert.SetUpdate(update)
 		upsert.SetUpsert(true)
 		operations = append(operations, upsert)
 	}
@@ -156,7 +184,7 @@ func UpdateNodes(nodes []Node) {
 }
 
 func (node Node) ConvertToDatabase() db.Node {
-	var children []int
+	var children = make([]int, 0)
 	for _, child := range node.Children {
 		children = append(children, child.State.GetID())
 	}
@@ -178,9 +206,6 @@ func (node Node) FlattenChildren() []Node {
 	return list
 }
 func flattenChildren(node Node, list *[]Node, set map[int]bool) {
-	if node.Simulations == 0 {
-		return
-	}
 	stateId := node.State.GetID()
 	if !set[stateId] {
 		*list = append(*list, node)

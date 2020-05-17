@@ -29,33 +29,50 @@ func getMove(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	waitGroup := sync.WaitGroup{}
+	analysisWG := sync.WaitGroup{}
+	updatesWG := sync.WaitGroup{}
 
 	var node = ai.NewNode(s, nil)
-	//go Process(node, &waitGroup)
+	//go Process(node, &analysisWG)
 	go func() {
-		waitGroup.Add(1)
+		fmt.Println("Analysis")
+		analysisWG.Add(1)
+		updatesWG.Add(1)
+
 		ai.Analyse(node)
+		fmt.Println("Analysis done")
+		analysisWG.Done()
+
 		nodes := node.FlattenChildren()
 		ai.UpdateNodes(nodes)
-		fmt.Println("UpdateNodes() done")
-		waitGroup.Done()
+
+		fmt.Println("updates from", s.GetID(), "done")
+		updatesWG.Done()
 	}()
-	var dbNode = db.GetNode(node.State.GetID())
-	if len(dbNode.Children) == 0 {
-		fmt.Println("node has no children, waiting")
-		waitGroup.Wait()
-		dbNode = db.GetNode(node.State.GetID())
+	analysisWG.Wait()
+
+	var stateId = node.State.GetID()
+	fmt.Println("stateid:", stateId)
+	var dbNode = db.GetNode(stateId)
+	fmt.Println("dbNode:", dbNode)
+
+	if dbNode == nil || len(dbNode.Children) == 0 {
+		bestChild := node.ChildWithBestWinRate()
+		c.JSON(200, gin.H{
+			"move": bestChild.State.Move,
+		})
+		return
 	}
-	bestChild := dbNode.ChildWithBestWinRate()
-	var move = bestChild.Move
+	node.UpdateChildrenFromDatabase()
+	bestChild := node.ChildWithBestWinRate()
+	var move = bestChild.State.Move
 	fmt.Println(bestChild)
 	fmt.Println(move)
 
 	c.JSON(200, gin.H{
 		"move": move,
 	})
-	//waitGroup.Wait()
+	//analysisWG.Wait()
 	fmt.Println("getMove() done")
 
 }
@@ -68,13 +85,13 @@ func Process(node *ai.Node, group *sync.WaitGroup) {
 }
 
 func CORSMiddleware(c *gin.Context) {
-	fmt.Println("Sending cors headers")
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Credentials", "true")
 	c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 	c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 	if c.Request.Method == "OPTIONS" {
+		fmt.Println("Sending cors headers")
 		c.AbortWithStatus(200)
 		return
 	}
