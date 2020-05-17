@@ -17,10 +17,6 @@ func TestState_Copy2(t *testing.T) {
 	})
 	fmt.Println(state2)
 }
-func timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	log.Printf("%s took %s", name, elapsed)
-}
 func TestState_GetMoves(t *testing.T) {
 	defer timeTrack(time.Now(), "GetFreeRows")
 	var s = NewState()
@@ -100,6 +96,19 @@ func TestState_GetFreeColumns(t *testing.T) {
 	}
 	t.Log("succeeded")
 }
+func TestState_GetID(t *testing.T) {
+	var s = NewState()
+	s.PlayMove(Coordinate{
+		Col: 6,
+		Row: 5,
+	})
+
+	var id = s.GetID()
+	fmt.Println(id)
+	if id != 27 {
+		t.Error("wrong id")
+	}
+}
 
 func BenchmarkState_Playout(b *testing.B) {
 	rand.Seed(time.Now().UnixNano())
@@ -165,4 +174,44 @@ func BenchmarkState_GetFreeRows(b *testing.B) {
 		freeRows := s.GetFreeRows()
 		s.GetRandomFreeRow(freeRows)
 	}
+}
+func BenchmarkState_GetID(b *testing.B) {
+	var s = NewState()
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 3,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 3,
+	})
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 2,
+	})
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 1,
+	})
+	s.PlayMove(Coordinate{
+		Col: 1,
+		Row: 0,
+	})
+	for i := 0; i < b.N; i++ {
+		s.GetID()
+		//fmt.Println(id)
+	}
+}
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
 }

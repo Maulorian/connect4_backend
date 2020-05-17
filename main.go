@@ -2,14 +2,14 @@ package main
 
 import (
 	"connect4_backend/ai"
+	"connect4_backend/db"
 	"connect4_backend/game"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"io/ioutil"
+	"sync"
 	"time"
 )
 
@@ -28,16 +28,32 @@ func getMove(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	waitGroup := sync.WaitGroup{}
 
-	fmt.Println(s)
 	var node = ai.NewNode(s, nil)
+	go Process(node, &waitGroup)
+	var dbNode = db.GetNode(node.State.GetID())
+	bestChild := dbNode.ChildWithBestWinRate()
 
-	move := ai.GetBestMove(node)
+	var move = bestChild.Move
+	fmt.Println(bestChild)
 	fmt.Println(move)
+	fmt.Println(move)
+
 	c.JSON(200, gin.H{
 		"move": move,
 	})
+	waitGroup.Wait()
+
 }
+func Process(node *ai.Node, group *sync.WaitGroup) {
+	group.Add(1)
+	ai.Analyse(node)
+	nodes := node.FlattenChildren()
+	ai.UpdateNodes(nodes)
+	group.Done()
+}
+
 func CORSMiddleware(c *gin.Context) {
 	fmt.Println("Sending cors headers")
 	c.Header("Access-Control-Allow-Origin", "*")
@@ -70,9 +86,7 @@ func saveGame(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://adp:bCi1M4NPkFgEfRzX@yeda-lan6r.gcp.mongodb.net"))
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
+	client := db.GetMongoClient()
 	games := client.Database("connect4").Collection("games")
 	var toInsert = make(map[string]interface{})
 	toInsert["nb_moves"] = len(g.Moves)
@@ -82,7 +96,7 @@ func saveGame(c *gin.Context) {
 	toInsert["started_at"] = time.Unix(g.StartedAt, 0)
 	toInsert["ended_at"] = time.Unix(g.EndedAt, 0)
 	toInsert["duration"] = g.Duration
-	id, _ := games.InsertOne(ctx, toInsert)
+	id, _ := games.InsertOne(context.TODO(), toInsert)
 	fmt.Println("added game:", id)
 }
 

@@ -7,58 +7,50 @@ import (
 	"time"
 )
 
-const CalculationTime = 3 //seconds
+const CalculationTime = 1 //seconds
 const ExplorationParameter = 10
 
-func GetBestMove(node *Node) game.Coordinate {
+func Analyse(node *Node) {
+	fmt.Println("Analyse()")
 	rand.Seed(time.Now().UnixNano())
-
+	set := make(map[int]bool)
 	var spent int64
 	var delta int64
 	var lastLoopCallTime = time.Now()
-	var dic = make(map[int]int)
 	for resourcesLeft(spent) {
-		//fmt.Println(node.simulations)
-		var leaf = Traverse(node)
-
-		outcome := leaf.state.Playout()
-		dic[outcome] += 1
-
-		//fmt.Println(outcome)
+		var leaf = Traverse(node, set)
+		outcome := leaf.State.Playout()
 		Backpropagate(leaf, outcome)
 
 		delta = time.Now().Sub(lastLoopCallTime).Nanoseconds()
 		spent += delta
 		lastLoopCallTime = time.Now()
-		//fmt.Println(spent)
+		//break
 	}
-	fmt.Println(dic)
 	fmt.Println(node)
-	fmt.Println("total simulation :", node.simulations)
-	for _, child := range node.children {
-		fmt.Println("wins:", child.wins, "simulations:", child.simulations, "winRate:", child.winRate, "utc:", child.GetUCT(), "move:", child.state.Move, "done by:", child.state.PreviousPlayer)
-		//fmt.Println(child)
+	fmt.Println("total simulation :", node.Simulations)
+	for _, child := range node.Children {
+		fmt.Println("wins:", child.Wins, "simulations:", child.Simulations, "winRate:", child.WinRate(), "utc:", child.GetUCT(), "move:", child.State.Move, "done by:", child.State.PreviousPlayer)
 	}
-
-	return node.ChildWithBestWinRate().state.Move
 }
 
 func Backpropagate(node *Node, o int) {
-	node.simulations++
+	//fmt.Println("Backpropagate()")
+	//fmt.Println(node)
+	node.Simulations++
 
 	if o == game.Draw {
-		node.wins += 0.5
-	} else if o == node.state.PreviousPlayer {
-		node.wins++
+		node.Wins += 0.5
+	} else if o == node.State.PreviousPlayer {
+		node.Wins++
 	}
-	node.winRate = node.wins / float32(node.simulations)
 	if node.isRoot() {
 		return
 	}
 	Backpropagate(node.parent, o)
 
 }
-func Traverse(node *Node) *Node {
+func Traverse(node *Node, set map[int]bool) *Node {
 	//fmt.Println("Traverse()")
 	var root = node
 	//fmt.Println(root)
@@ -68,12 +60,8 @@ func Traverse(node *Node) *Node {
 			break
 		}
 		root = bestChoice
-		//if len(root.children) == 0 {
-		//	break
-		//}
 	}
-
-	child, err := root.GenerateChildren()
+	child, err := root.GenerateChildren(set)
 
 	if err != nil {
 		//fmt.Println(err.Error())

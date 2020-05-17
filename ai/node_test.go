@@ -24,10 +24,9 @@ func TestNewNode(t *testing.T) {
 		Col: 1,
 		Row: 0,
 	})
-	fmt.Println(node1.state)
+	fmt.Println(node1.State)
 
 }
-
 func TestNode_Expand(t *testing.T) {
 	var state = game.State{
 		Grid:           [7][6]int{},
@@ -38,17 +37,16 @@ func TestNode_Expand(t *testing.T) {
 		NbMoves:        0,
 	}
 	var node = NewNode(state, nil)
-	node.GenerateChildren()
-	for _, child := range node.children {
-		if child.state.NbMoves == 0 {
+	node.GenerateChildren(nil)
+	for _, child := range node.Children {
+		if child.State.NbMoves == 0 {
 			t.Error("children should have 1 move")
 		}
 	}
-	if len(node.children) != game.Cols {
+	if len(node.Children) != game.Cols {
 		t.Error("should have 7 children")
 	}
 }
-
 func TestNode_GetUCT(t *testing.T) {
 	var state = game.State{
 		Grid:           [7][6]int{},
@@ -59,16 +57,16 @@ func TestNode_GetUCT(t *testing.T) {
 		NbMoves:        0,
 	}
 	var parent = NewNode(state, nil)
-	parent.simulations = 672313
+	parent.Simulations = 672313
 	var node = NewNode(state, parent)
-	node.wins = 187591.5
-	node.simulations = 279740
+	node.Wins = 187591.5
+	node.Simulations = 279740
 	fmt.Println(node.GetUCT())
 }
 func TestCopy(t *testing.T) {
 	var state = game.NewState()
 	var node = NewNode(*state, nil)
-	var deepCopy = node.state
+	var deepCopy = node.State
 	deepCopy.PlayMove(game.Coordinate{
 		Col: 0,
 		Row: 5,
@@ -77,11 +75,28 @@ func TestCopy(t *testing.T) {
 		Col: 1,
 		Row: 5,
 	})
-	node.state.PlayMove(game.Coordinate{
+	node.State.PlayMove(game.Coordinate{
 		Col: 2,
 		Row: 5,
 	})
 	fmt.Println(deepCopy)
 	fmt.Println(state)
-	fmt.Println(node.state)
+	fmt.Println(node.State)
+}
+func TestNode_WinRate(t *testing.T) {
+	var state = game.NewState()
+	var node = NewNode(*state, nil)
+	node.Simulations = 2
+	node.Wins = 0.5
+	fmt.Println(node.WinRate())
+	if node.WinRate() != 0.25 {
+		t.Error("winrate wrong")
+	}
+}
+func TestNode_FlattenChildren(t *testing.T) {
+	var state = game.NewState()
+	var node = NewNode(*state, nil)
+	node.GenerateChildren(nil)
+	nodes := node.FlattenChildren()
+	fmt.Println(nodes)
 }

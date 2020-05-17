@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"math"
 	"math/rand"
 )
 
@@ -136,6 +137,25 @@ func (state *State) GetRandomFreeRow(freeRows [7]int) (Coordinate, error) {
 		counter++
 	}
 	return Coordinate{}, errors.New("no free row available")
+}
+
+func (state *State) GetID() int {
+	var total = 0
+	var rowMultiplier = 1
+
+	for row := Rows - 1; row >= 0; row-- {
+		var pivot = int(math.Floor(Cols / 2))
+		var rowTotal = state.Grid[pivot][row]
+		var columnMultiplier = 3
+		for i := 1; i <= pivot; i++ {
+			rowTotal += state.Grid[pivot+i][row] * columnMultiplier
+			rowTotal += state.Grid[pivot-i][row] * columnMultiplier
+			columnMultiplier *= 3
+		}
+		total += rowTotal * rowMultiplier
+		rowMultiplier *= 158
+	}
+	return total
 }
 
 //func PrintMemUsage() {
