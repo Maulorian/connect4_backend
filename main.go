@@ -29,20 +29,25 @@ func getMove(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//waitGroup := sync.WaitGroup{}
+	waitGroup := sync.WaitGroup{}
 
 	var node = ai.NewNode(s, nil)
 	//go Process(node, &waitGroup)
 	go func() {
+		waitGroup.Add(1)
 		ai.Analyse(node)
 		nodes := node.FlattenChildren()
 		ai.UpdateNodes(nodes)
 		fmt.Println("UpdateNodes() done")
-
+		waitGroup.Done()
 	}()
 	var dbNode = db.GetNode(node.State.GetID())
+	if len(dbNode.Children) == 0 {
+		fmt.Println("node has no children, waiting")
+		waitGroup.Wait()
+		dbNode = db.GetNode(node.State.GetID())
+	}
 	bestChild := dbNode.ChildWithBestWinRate()
-
 	var move = bestChild.Move
 	fmt.Println(bestChild)
 	fmt.Println(move)
