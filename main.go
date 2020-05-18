@@ -31,25 +31,30 @@ func getMove(c *gin.Context) {
 	}
 	analysisWG := sync.WaitGroup{}
 	updatesWG := sync.WaitGroup{}
-
+	analysisWG.Add(1)
+	updatesWG.Add(1)
 	var node = ai.NewNode(s, nil)
-	//go Process(node, &analysisWG)
+	//var mutex = sync.Mutex{}
+	//go Process(node, &analysisWG, &updatesWG, &mutex)
 	go func() {
 		fmt.Println("Analysis")
-		analysisWG.Add(1)
-		updatesWG.Add(1)
 
-		ai.Analyse(node)
+		//mutex.Lock()
+		ai.Analysis(node)
 		fmt.Println("Analysis done")
 		analysisWG.Done()
-
 		nodes := node.FlattenChildren()
+		//mutex.Unlock()
+
 		ai.UpdateNodes(nodes)
 
-		fmt.Println("updates from", s.GetID(), "done")
+		fmt.Println("updates from", node.State.GetID(), "done")
 		updatesWG.Done()
 	}()
+
+	fmt.Println("waiting for analysis to finish")
 	analysisWG.Wait()
+	fmt.Println("analysis finished: node has", len(node.Children), "children")
 
 	var stateId = node.State.GetID()
 	fmt.Println("stateid:", stateId)
@@ -57,12 +62,19 @@ func getMove(c *gin.Context) {
 	fmt.Println("dbNode:", dbNode)
 
 	if dbNode == nil || len(dbNode.Children) == 0 {
+		fmt.Println("dbNode is either nil or has no children")
 		bestChild := node.ChildWithBestWinRate()
 		c.JSON(200, gin.H{
 			"move": bestChild.State.Move,
 		})
+		fmt.Println("getMove() done")
+
 		return
 	}
+	fmt.Println("waiting for updates to finish")
+	updatesWG.Wait()
+	fmt.Println("updates finished")
+
 	node.UpdateChildrenFromDatabase()
 	bestChild := node.ChildWithBestWinRate()
 	var move = bestChild.State.Move
@@ -76,12 +88,21 @@ func getMove(c *gin.Context) {
 	fmt.Println("getMove() done")
 
 }
-func Process(node *ai.Node, group *sync.WaitGroup) {
-	group.Add(1)
-	ai.Analyse(node)
+func Process(node *ai.Node, analysisWG *sync.WaitGroup, updatesWG *sync.WaitGroup, mutex *sync.Mutex) {
+	fmt.Println("Analysis")
+	analysisWG.Add(1)
+	updatesWG.Add(1)
+	mutex.Lock()
+	ai.Analysis(node)
+	fmt.Println("Analysis done")
+	analysisWG.Done()
 	nodes := node.FlattenChildren()
+	mutex.Unlock()
+
 	ai.UpdateNodes(nodes)
-	group.Done()
+
+	fmt.Println("updates from", node.State.GetID(), "done")
+	updatesWG.Done()
 }
 
 func CORSMiddleware(c *gin.Context) {

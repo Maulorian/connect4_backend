@@ -119,7 +119,12 @@ func (node Node) GetUCT() float64 {
 func (node *Node) UpdateChildrenFromDatabase() {
 	fmt.Println("UpdateChildrenFromDatabase()")
 	for _, child := range node.Children {
-		dbChild := db.GetNode(child.State.GetID())
+		stateId := child.State.GetID()
+		dbChild := db.GetNode(stateId)
+		if dbChild == nil {
+			fmt.Println(stateId, "had no entry in db")
+			continue
+		}
 		child.Simulations = dbChild.Simulations
 		child.Wins = dbChild.Wins
 	}
@@ -130,9 +135,6 @@ func (node Node) ChildWithBestWinRate() Node {
 	var maxValue = float32(math.SmallestNonzeroFloat32)
 
 	for _, child := range node.Children {
-		if child == nil {
-			continue
-		}
 		var winRate = child.WinRate()
 		if winRate > maxValue {
 			maxValue = winRate
@@ -200,18 +202,20 @@ func (node Node) ConvertToDatabase() db.Node {
 
 func (node Node) FlattenChildren() []Node {
 	var list []Node
-	set := make(map[int]bool)
-	flattenChildren(node, &list, set)
-	//list = append(list, node)
+	for _, child := range node.Children {
+		list = append(list, *child)
+	}
+	list = append(list, node)
 	return list
 }
-func flattenChildren(node Node, list *[]Node, set map[int]bool) {
-	stateId := node.State.GetID()
-	if !set[stateId] {
-		*list = append(*list, node)
-		set[stateId] = true
-	}
-	for _, child := range node.Children {
-		flattenChildren(*child, list, set)
-	}
-}
+
+//func flattenChildren(node Node, list *[]Node, set map[int]bool) {
+//	stateId := node.State.GetID()
+//	if !set[stateId] {
+//		*list = append(*list, node)
+//		set[stateId] = true
+//	}
+//	for _, child := range node.Children {
+//		flattenChildren(*child, list, set)
+//	}
+//}

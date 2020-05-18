@@ -10,8 +10,8 @@ import (
 const CalculationTime = 1 //seconds
 const ExplorationParameter = 10
 
-func Analyse(node *Node) {
-	fmt.Println("Analyse()")
+func Analysis(node *Node) {
+	//fmt.Println("Analysis()")
 	rand.Seed(time.Now().UnixNano())
 	set := make(map[int]bool)
 	var spent int64

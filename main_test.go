@@ -15,7 +15,7 @@ func TestProcess(t *testing.T) {
 	fmt.Println(s)
 
 	var node = ai.NewNode(*s, nil)
-	go Process(node, &waitGroup)
+	go Process(node, &waitGroup, nil)
 	var dbNode = db.GetNode(node.State.GetID())
 	bestChild := dbNode.ChildWithBestWinRate(nil)
 
