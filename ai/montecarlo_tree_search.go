@@ -8,12 +8,12 @@ import (
 )
 
 const CalculationTime = 1 //seconds
-const ExplorationParameter = 10
+const ExplorationParameter = 2
 
-func Analysis(node *Node) {
-	//fmt.Println("Analysis()")
+func Analysis(node *Node, set map[int]bool) {
+	fmt.Println("Analysis()")
+	var start = time.Now()
 	rand.Seed(time.Now().UnixNano())
-	set := make(map[int]bool)
 	var spent int64
 	var delta int64
 	var lastLoopCallTime = time.Now()
@@ -29,8 +29,15 @@ func Analysis(node *Node) {
 	}
 	fmt.Println("total simulation :", node.Simulations)
 	for _, child := range node.Children {
-		fmt.Println("wins:", child.Wins, "simulations:", child.Simulations, "winRate:", child.WinRate(), "utc:", child.GetUCT(), "move:", child.State.Move, "done by:", child.State.PreviousPlayer)
+		//fmt.Printf("%#v", child)
+		child.PrettyPrint()
+		//fmt.Println("children:")
+		//for _, c := range child.Children {
+		//	c.PrettyPrint()
+		//}
+		//fmt.Println("")
 	}
+	fmt.Println("Analysis executed in", time.Now().Sub(start))
 }
 
 func Backpropagate(node *Node, o int) {

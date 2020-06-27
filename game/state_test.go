@@ -20,6 +20,46 @@ func TestState_Copy2(t *testing.T) {
 func TestState_GetMoves(t *testing.T) {
 	defer timeTrack(time.Now(), "GetFreeRows")
 	var s = NewState()
+	s.PlayMove(Coordinate{
+		Col: 3,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 3,
+	})
+	s.PlayMove(Coordinate{
+		Col: 3,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 3,
+	})
 	s.GetFreeRows()
 }
 func TestState_HasConnectedFour(t *testing.T) {
@@ -28,45 +68,53 @@ func TestState_HasConnectedFour(t *testing.T) {
 		Col: 3,
 		Row: 5,
 	})
-	fmt.Println(s)
-
 	s.PlayMove(Coordinate{
 		Col: 0,
 		Row: 5,
 	})
-	fmt.Println(s)
-
-	s.PlayMove(Coordinate{
-		Col: 4,
-		Row: 5,
-	})
-	fmt.Println(s)
-
-	s.PlayMove(Coordinate{
-		Col: 0,
-		Row: 4,
-	})
-	fmt.Println(s)
-
 	s.PlayMove(Coordinate{
 		Col: 2,
 		Row: 5,
 	})
-	fmt.Println(s)
-
 	s.PlayMove(Coordinate{
-		Col: 0,
+		Col: 4,
+		Row: 5,
+	})
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 2,
 		Row: 3,
 	})
-	fmt.Println(s)
-
+	s.PlayMove(Coordinate{
+		Col: 3,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 0,
+		Row: 4,
+	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 3,
+	})
 	s.PlayMove(Coordinate{
 		Col: 1,
 		Row: 5,
 	})
+	s.PlayMove(Coordinate{
+		Col: 4,
+		Row: 2,
+	})
 	fmt.Println(s)
-	fmt.Println(s.Outcome)
-	if s.Outcome != Player1Won {
+	fmt.Println("outcome: ", s.Outcome)
+	if s.Outcome == None {
 		t.Errorf("not good")
 	}
 }
@@ -96,16 +144,29 @@ func TestState_GetFreeColumns(t *testing.T) {
 	}
 	t.Log("succeeded")
 }
-func TestState_GetID(t *testing.T) {
+func TestState_GetRightStateID(t *testing.T) {
 	var s = NewState()
 	s.PlayMove(Coordinate{
-		Col: 6,
+		Col: 0,
 		Row: 5,
 	})
 
-	var id = s.GetID()
+	var id = s.GetRightStateID()
 	fmt.Println(id)
-	if id != 27 {
+	if id != 729 {
+		t.Error("wrong id")
+	}
+}
+func TestState_GetLeftStateID(t *testing.T) {
+	var s = NewState()
+	s.PlayMove(Coordinate{
+		Col: 2,
+		Row: 5,
+	})
+
+	var id = s.GetLeftStateID()
+	fmt.Println(id)
+	if id != 1 {
 		t.Error("wrong id")
 	}
 }
@@ -206,7 +267,7 @@ func BenchmarkState_GetID(b *testing.B) {
 		Row: 0,
 	})
 	for i := 0; i < b.N; i++ {
-		s.GetID()
+		s.GetLeftStateID()
 		//fmt.Println(id)
 	}
 }

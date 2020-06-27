@@ -11,7 +11,57 @@ func TestTraverse(t *testing.T) {
 	var node = NewNode(*s, nil)
 	Traverse(node, nil)
 }
+func TestNode_GenerateChildren(t *testing.T) {
+	var s = game.NewState()
+	//
+	//s.PlayMove(game.Coordinate{
+	//	Col: 3,
+	//	Row: 5,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 0,
+	//	Row: 5,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 2,
+	//	Row: 5,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 4,
+	//	Row: 5,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 2,
+	//	Row: 4,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 2,
+	//	Row: 3,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 3,
+	//	Row: 4,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 4,
+	//	Row: 4,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 0,
+	//	Row: 4,
+	//})
+	//s.PlayMove(game.Coordinate{
+	//	Col: 4,
+	//	Row: 3,
+	//})
+	var node = NewNode(*s, nil)
+	set := make(map[int]bool)
+	node.GenerateChildren(set)
 
+	for _, c := range node.Children {
+		c.PrettyPrint()
+	}
+}
 func TestChildWithBestUTC(t *testing.T) {
 	var s = game.NewState()
 	var node = NewNode(*s, nil)

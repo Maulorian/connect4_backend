@@ -2,7 +2,7 @@ package main
 
 import (
 	"connect4_backend/ai"
-	"connect4_backend/db"
+	"connect4_backend/database"
 	"connect4_backend/game"
 	"fmt"
 	"sync"
@@ -16,7 +16,7 @@ func TestProcess(t *testing.T) {
 
 	var node = ai.NewNode(*s, nil)
 	go Process(node, &waitGroup, nil)
-	var dbNode = db.GetNode(node.State.GetID())
+	var dbNode = database.GetNode(node.State.GetID())
 	bestChild := dbNode.ChildWithBestWinRate(nil)
 
 	var move = bestChild.Move

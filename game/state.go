@@ -2,7 +2,6 @@ package game
 
 import (
 	"errors"
-	"math"
 	"math/rand"
 )
 
@@ -73,8 +72,10 @@ func (state *State) setCellState(coordinate Coordinate, player int) {
 func (state State) HasConnectedFour(move Coordinate) bool {
 	for direction := Up; direction <= DownRight; direction++ {
 		var oppositeDirection = direction.GetOppositeDirection()
-		count := state.NbConnectedInDirection(move, direction) + state.NbConnectedInDirection(move, oppositeDirection)
-		if count >= 3 {
+		var count = 1
+		count += state.NbConnectedInDirection(move, direction)
+		count += state.NbConnectedInDirection(move, oppositeDirection)
+		if count >= 4 {
 			return true
 		}
 	}
@@ -88,8 +89,8 @@ func (state State) NbConnectedInDirection(move Coordinate, direction Direction) 
 		if state.GetPlayerFromCoordinate(coordinate) != state.CurrentPlayer {
 			break
 		}
-		coordinate = coordinate.GetCoordinateInDirection(direction)
 		count++
+		coordinate = coordinate.GetCoordinateInDirection(direction)
 	}
 	return count
 }
@@ -139,17 +140,29 @@ func (state *State) GetRandomFreeRow(freeRows [7]int) (Coordinate, error) {
 	return Coordinate{}, errors.New("no free row available")
 }
 
-func (state *State) GetID() int {
+func (state *State) GetLeftStateID() int {
 	var total = 0
 	var rowMultiplier = 1
-
 	for row := Rows - 1; row >= 0; row-- {
-		var pivot = int(math.Floor(Cols / 2))
-		var rowTotal = state.Grid[pivot][row]
-		var columnMultiplier = 3
-		for i := 1; i <= pivot; i++ {
-			rowTotal += state.Grid[pivot+i][row] * columnMultiplier
-			rowTotal += state.Grid[pivot-i][row] * columnMultiplier
+		var rowTotal = 0
+		var columnMultiplier = 1
+		for col := 0; col < Cols; col++ {
+			rowTotal += state.Grid[col][row] * columnMultiplier
+			columnMultiplier *= 3
+		}
+		total += rowTotal * rowMultiplier
+		rowMultiplier *= 158
+	}
+	return total
+}
+func (state *State) GetRightStateID() int {
+	var total = 0
+	var rowMultiplier = 1
+	for row := Rows - 1; row >= 0; row-- {
+		var rowTotal = 0
+		var columnMultiplier = 1
+		for col := 0; col < Cols; col++ {
+			rowTotal += state.Grid[Cols-1-col][row] * columnMultiplier
 			columnMultiplier *= 3
 		}
 		total += rowTotal * rowMultiplier

@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"connect4_backend/game"
@@ -20,9 +20,8 @@ func (node Node) WinRate() float32 {
 	return node.Wins / float32(node.Simulations)
 }
 
-func GetNode(stateId int) *Node {
-	fmt.Println("GetNode() from state_id:", stateId)
-	client := GetMongoClient()
+func GetNode(stateId int, client *mongo.Client) *Node {
+	fmt.Println("Getting node from database with state_id=", stateId)
 	nodes := client.Database("connect4").Collection("nodes")
 	filter := bson.D{{"state_id", stateId}}
 	var result Node

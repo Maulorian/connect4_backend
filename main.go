@@ -2,7 +2,7 @@ package main
 
 import (
 	"connect4_backend/ai"
-	"connect4_backend/db"
+	"connect4_backend/database"
 	"connect4_backend/game"
 	"context"
 	"encoding/json"
@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"runtime"
-	"sync"
 	"time"
 )
 
@@ -29,53 +28,14 @@ func getMove(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	analysisWG := sync.WaitGroup{}
-	updatesWG := sync.WaitGroup{}
-	analysisWG.Add(1)
-	updatesWG.Add(1)
+
 	var node = ai.NewNode(s, nil)
-	//var mutex = sync.Mutex{}
-	//go Process(node, &analysisWG, &updatesWG, &mutex)
-	go func() {
-		fmt.Println("Analysis")
-
-		//mutex.Lock()
-		ai.Analysis(node)
-		fmt.Println("Analysis done")
-		analysisWG.Done()
-		nodes := node.FlattenChildren()
-		//mutex.Unlock()
-
-		ai.UpdateNodes(nodes)
-
-		fmt.Println("updates from", node.State.GetID(), "done")
-		updatesWG.Done()
-	}()
-
-	fmt.Println("waiting for analysis to finish")
-	analysisWG.Wait()
-	fmt.Println("analysis finished: node has", len(node.Children), "children")
-
-	var stateId = node.State.GetID()
-	fmt.Println("stateid:", stateId)
-	var dbNode = db.GetNode(stateId)
-	fmt.Println("dbNode:", dbNode)
-
-	if dbNode == nil || len(dbNode.Children) == 0 {
-		fmt.Println("dbNode is either nil or has no children")
-		bestChild := node.ChildWithBestWinRate()
-		c.JSON(200, gin.H{
-			"move": bestChild.State.Move,
-		})
-		fmt.Println("getMove() done")
-
-		return
-	}
-	fmt.Println("waiting for updates to finish")
-	updatesWG.Wait()
-	fmt.Println("updates finished")
-
+	set := make(map[int]bool)
+	node.GenerateChildren(set)
 	node.UpdateChildrenFromDatabase()
+	ai.Analysis(node, set)
+	nodes := node.FlattenChildren()
+	ai.UpdateNodes(nodes)
 	bestChild := node.ChildWithBestWinRate()
 	var move = bestChild.State.Move
 	fmt.Println(bestChild)
@@ -84,25 +44,8 @@ func getMove(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"move": move,
 	})
-	//analysisWG.Wait()
 	fmt.Println("getMove() done")
 
-}
-func Process(node *ai.Node, analysisWG *sync.WaitGroup, updatesWG *sync.WaitGroup, mutex *sync.Mutex) {
-	fmt.Println("Analysis")
-	analysisWG.Add(1)
-	updatesWG.Add(1)
-	mutex.Lock()
-	ai.Analysis(node)
-	fmt.Println("Analysis done")
-	analysisWG.Done()
-	nodes := node.FlattenChildren()
-	mutex.Unlock()
-
-	ai.UpdateNodes(nodes)
-
-	fmt.Println("updates from", node.State.GetID(), "done")
-	updatesWG.Done()
 }
 
 func CORSMiddleware(c *gin.Context) {
@@ -140,7 +83,7 @@ func saveGame(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	client := db.GetMongoClient()
+	client := database.Connection()
 	games := client.Database("connect4").Collection("games")
 	var toInsert = make(map[string]interface{})
 	toInsert["nb_moves"] = len(g.Moves)
