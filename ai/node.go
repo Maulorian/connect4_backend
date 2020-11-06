@@ -45,7 +45,7 @@ func (this *Node) GenerateChildren(set map[int]bool) (*Node, error) {
 	if this.isTerminal() {
 		return nil, errors.New("this is terminal")
 	}
-	var rows = this.State.GetFreeRows()
+	var rows = this.State.GetFreeColumns()
 	//fmt.Println(rows)
 	for col := 0; col < game.Cols; col++ {
 		row := rows[col]

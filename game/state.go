@@ -34,7 +34,7 @@ func NewState() *State {
 //	return nil
 //}
 
-func (state State) GetFreeRows() [7]int {
+func (state State) GetFreeColumns() [7]int {
 	var freeRows [Cols]int
 	for col := 0; col < Cols; col++ {
 		freeRows[col] = state.GetFreeRow(col)
@@ -107,7 +107,7 @@ func (state *State) changeTurn() {
 func (state State) Playout() int {
 	//fmt.Println("Playout")
 	for state.Outcome == None {
-		freeRows := state.GetFreeRows()
+		freeRows := state.GetFreeColumns()
 
 		move, err := state.GetRandomFreeRow(freeRows)
 		if err != nil {

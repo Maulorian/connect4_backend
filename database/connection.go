@@ -6,11 +6,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"os"
 )
 
 func Connection() *mongo.Client {
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb+srv://adp:bCi1M4NPkFgEfRzX@yeda-lan6r.gcp.mongodb.net")
+	mongoPassword := os.Getenv("MONGO_PASSWORD")
+	clientOptions := options.Client().ApplyURI("mongodb+srv://adp:" + mongoPassword + "@yeda-lan6r.gcp.mongodb.net")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)

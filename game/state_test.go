@@ -18,7 +18,7 @@ func TestState_Copy2(t *testing.T) {
 	fmt.Println(state2)
 }
 func TestState_GetMoves(t *testing.T) {
-	defer timeTrack(time.Now(), "GetFreeRows")
+	defer timeTrack(time.Now(), "GetFreeColumns")
 	var s = NewState()
 	s.PlayMove(Coordinate{
 		Col: 3,
@@ -60,7 +60,7 @@ func TestState_GetMoves(t *testing.T) {
 		Col: 4,
 		Row: 3,
 	})
-	s.GetFreeRows()
+	s.GetFreeColumns()
 }
 func TestState_HasConnectedFour(t *testing.T) {
 	var s = NewState()
@@ -137,7 +137,7 @@ func TestState_GetFreeColumns(t *testing.T) {
 		}
 	}
 
-	freeColumns := s.GetFreeRows()
+	freeColumns := s.GetFreeColumns()
 	_, err := s.GetRandomFreeRow(freeColumns)
 	if err == nil {
 		t.Errorf("a column is empty after a playout")
@@ -185,7 +185,7 @@ func BenchmarkState_Playout(b *testing.B) {
 func BenchmarkState_GetMoves(b *testing.B) {
 	var s = NewState()
 	for n := 0; n < b.N; n++ {
-		s.GetFreeRows()
+		s.GetFreeColumns()
 	}
 }
 func BenchmarkState_GetFreeRowCell(b *testing.B) {
@@ -232,7 +232,7 @@ func BenchmarkState_GetFreeRows(b *testing.B) {
 	})
 
 	for n := 0; n < b.N; n++ {
-		freeRows := s.GetFreeRows()
+		freeRows := s.GetFreeColumns()
 		s.GetRandomFreeRow(freeRows)
 	}
 }
